@@ -22,6 +22,8 @@ document.getElementById('nameForm').addEventListener('submit', async function (e
     document.getElementById('nameResponse').textContent = `${data.message}. Danh sách tên: ${data.names.join(', ')}`;
 });
 
+
+
 // Form tính BMI
 document.getElementById('bmiForm').addEventListener('submit', async function (e) {
     // Ngăn hành vi mặc định của form (ngăn tải lại trang)
@@ -32,6 +34,7 @@ document.getElementById('bmiForm').addEventListener('submit', async function (e)
     const weight = parseFloat(document.getElementById('weight').value);
 
     // Gửi yêu cầu POST đến server tại route '/bmi' với dữ liệu JSON
+   try{
     const response = await fetch('/api/v1/bmi', {
         method: 'POST',  // Sử dụng phương thức POST để gửi dữ liệu
         headers: {
@@ -39,10 +42,16 @@ document.getElementById('bmiForm').addEventListener('submit', async function (e)
         },
         body: JSON.stringify({ height, weight }),  // Chuyển đổi đối tượng thành chuỗi JSON
     });
-
+    if (!response.ok){
+            throw new Error('Lỗi khi tính BMI')
+    }
     // Chờ phản hồi từ server và chuyển đổi phản hồi từ JSON thành đối tượng JavaScript
     const data = await response.json();
 
     // Hiển thị thông điệp trả về từ server trong phần tử có id là 'bmiResult'
     document.getElementById('bmiResult').textContent = `BMI của bạn là: ${data.bmi}, Phân loại: ${data.classification}`;
+    } catch(error){
+        console.error(error);
+        document.getElementById('bmiResult').textContent = 'Có lỗi xảy ra khi tính BMI.';
+    }
 });
