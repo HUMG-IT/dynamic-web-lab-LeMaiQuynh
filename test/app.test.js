@@ -7,7 +7,10 @@ app.use(express.json());
 // Định nghĩa route và logic kiểm thử cho ứng dụng
 const names = [];
 app.post('/api/v1/submit', (req, res) => {
-  const name = req.body.name;
+  const { name } = req.body;
+  if (!name) {
+    return res.status(400).json({ error: 'Tên là bắt buộc' });
+  }
   names.push(name);
   res.json({ message: `Xin chào, ${name}!`, names });
 });
@@ -21,12 +24,23 @@ describe('Kiểm thử POST /api/v1/submit', () => {
     expect(res.body).toHaveProperty('message', 'Xin chào, John!');
     expect(res.body.names).toContain('John');
   });
+
+  it('trả về lỗi nếu không có tên', async () => {
+    const res = await request(app)
+      .post('/api/v1/submit')
+      .send({});
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toHaveProperty('error', 'Tên là bắt buộc');
+  });
 });
 
 // Import các model và controller cho BMI
 const { calculateBMI, classifyBMI } = require('../src/models/bmi');
 app.post('/api/v1/bmi', (req, res) => {
   const { weight, height } = req.body;
+  if (!weight || !height) {
+    return res.status(400).json({ error: 'Cân nặng và chiều cao là bắt buộc' });
+  }
   const bmi = calculateBMI(weight, height);
   const classification = classifyBMI(bmi);
   res.json({ bmi, classification });
@@ -64,5 +78,13 @@ describe('Kiểm thử POST /api/v1/bmi', () => {
       .send({ weight: 90, height: 165 });
     expect(res.statusCode).toEqual(200);
     expect(res.body.classification).toBe('Béo phì');
+  });
+
+  it('trả về lỗi nếu thiếu cân nặng hoặc chiều cao', async () => {
+    const res = await request(app)
+      .post('/api/v1/bmi')
+      .send({ height: 165 });
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toHaveProperty('error', 'Cân nặng và chiều cao là bắt buộc');
   });
 });
