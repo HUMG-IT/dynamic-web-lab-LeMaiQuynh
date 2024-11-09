@@ -24,7 +24,7 @@ function killPort3000() {
         const pid = parts[parts.length - 1]; // PID là giá trị cuối
         exec(`taskkill /F /PID ${pid}`, (killError, killStdout, killStderr) => {
           if (killError) {
-            console.error(`Lỗi khi dừng cổng 3000 trên Windows: ${killError}`);
+            console.error(`Lỗi khi dừng tiến trình trên cổng 3000: ${killError}`);
             return;
           }
           console.log(`Đã dừng ứng dụng trên cổng 3000 (Windows), PID: ${pid}.`);
@@ -32,7 +32,7 @@ function killPort3000() {
       });
     });
   } else {
-    console.log("Hệ điều hành không được hỗ trợ.");
+    console.log("Đã dừng ứng dụng trên cổng 3000 (Windows), PID: ${pid}.");
   }
 }
 
